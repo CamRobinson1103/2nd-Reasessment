@@ -14,8 +14,6 @@ namespace MathForGames
     class Enemy : Actor
     {
         private Actor _target;
-        private Color _alertColor;
-        private Vector2 _currentPoint;
         private Sprite _sprite;
         private float _speed;
 
