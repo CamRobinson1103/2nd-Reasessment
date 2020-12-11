@@ -6,10 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Raylib-cs" Version="3.1.5" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\MathLibrary\MathLibrary.csproj" />
   </ItemGroup>
 

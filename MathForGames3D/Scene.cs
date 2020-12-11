@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using MathLibrary;
 
-namespace MathForGames
+namespace MathForGames3D
 {
     class Scene
     {
@@ -114,17 +114,7 @@ namespace MathForGames
         /// </summary>
         private void CheckCollision()
         {
-            for (int i = 0; i < _actors.Length; i++)
-            {
-                for (int j = 0; j < _actors.Length; j++)
-                {
-                    if (i >= _actors.Length)
-                        break;
 
-                    if (_actors[i].CheckCollision(_actors[j]) && i != j)
-                        _actors[i].OnCollision(_actors[j]);
-                }
-            }
         }
 
         public virtual void Start()

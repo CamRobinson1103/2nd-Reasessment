@@ -1,16 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Text;
-using System.Threading;
-using MathLibrary;
 using Raylib_cs;
+using MathLibrary;
 
-namespace MathForGames
+namespace MathForGames3D
 {
     class Game
     {
-        private static bool _gameOver = false;
+        private static bool _gameOver;
+        private Camera3D _camera = new Camera3D();
+
+        public static bool GameOver
+        {
+            get
+            {
+                return _gameOver;
+            }
+            set
+            {
+                _gameOver = value;
+            }
+        }
+
         private static Scene[] _scenes;
         private static int _currentSceneIndex;
         public static int CurrentSceneIndex
@@ -23,22 +35,6 @@ namespace MathForGames
 
         public static ConsoleColor DefaultColor { get; set; } = ConsoleColor.White;
 
-        /// <summary>
-        /// Used to set the value of game over.
-        /// </summary>
-        /// <param name="value">If this value is true, the game will end</param>
-        public static void SetGameOver(bool value)
-        {
-            _gameOver = value;
-        }
-
-
-        /// <summary>
-        /// Returns the scene at the index given.
-        /// Returns an empty scene if the index is out of bounds
-        /// </summary>
-        /// <param name="index">The index of the desired scene</param>
-        /// <returns></returns>
         public static Scene GetScene(int index)
         {
             if (index < 0 || index >= _scenes.Length)
@@ -176,124 +172,60 @@ namespace MathForGames
             _scenes = new Scene[0];
         }
 
-        //Called when the game begins. Use this for initialization.
-        public void Start()
+
+        private void Start()
         {
-            //Creates a new window for raylib
-            Raylib.InitWindow(1024, 760, "Math For Games");
+            Raylib.InitWindow(1024, 760, "Math for Games");
             Raylib.SetTargetFPS(60);
+            _camera.position = new System.Numerics.Vector3(0.0f, 10.0f, 10.0f);
+            _camera.target = new System.Numerics.Vector3(0.0f, 0.0f, 0.0f);
+            _camera.up = new System.Numerics.Vector3(0.0f, 1.0f, 0.0f);
+            _camera.fovy = 45.0f;
+            _camera.type = CameraType.CAMERA_PERSPECTIVE;
 
-            //Set up console window
-            Console.CursorVisible = false;
-            Console.Title = "Math For Games";
 
-            //Create a new scene for our actors to exist in
-            Scene scene1 = new Scene();
-            Scene scene2 = new Scene();
-
-            //Create the actors to add to our scene
-            Message message = new Message(10, 20, Color.GREEN, '■', ConsoleColor.Green);
-            Enemy enemy1 = new Enemy(20, 20, Color.GREEN, '■', ConsoleColor.Green);
-            Enemy enemy2 = new Enemy(25, 25, Color.GREEN, '■', ConsoleColor.Green);
-            Enemy enemy3 = new Enemy(30, 30, Color.GREEN, '■', ConsoleColor.Green);
-            Player player = new Player(1, 1, Color.BLUE, '@', ConsoleColor.Red);
-            Scissors scissors = new Scissors(1, 1, enemy1, enemy2, enemy3, Color.BLUE, '@', ConsoleColor.Red);
-
-            enemy1.Target = player;
-            enemy1.Speed = 1;
-            enemy2.Speed = 1;
-            enemy3.Speed = 1;
-            player.Speed = 5;
-            enemy1.SetTranslation(new Vector2(5, 5));
-            enemy2.SetTranslation(new Vector2(10, 5));
-            enemy3.SetTranslation(new Vector2(15, 5));
-            player.SetTranslation(new Vector2(5, 0));
-
-            player.AddChild(scissors);
-
-            //player.SetRotation(1);
-            player.SetScale(2, 2);
-            enemy1.SetScale(4, 4);
-            enemy2.SetScale(4, 4);
-            enemy3.SetScale(4, 4);
-            //Add actors to the scenes
-            scene1.AddActor(player);
-            scene1.AddActor(scissors);
-            scene1.AddActor(enemy1);
-            scene1.AddActor(enemy2);
-            scene1.AddActor(enemy3);
-            scene1.AddActor(message);
-            scene2.AddActor(player);
-
-            enemy1.Target = player;
-
-            //Sets the starting scene index and adds the scenes to the scenes array
-            int startingSceneIndex = 0;
-            startingSceneIndex = AddScene(scene1);
-            AddScene(scene2);
-
-            //Sets the current scene to be the starting scene index
-            SetCurrentScene(startingSceneIndex);
         }
 
 
-
-        /// <summary>
-        /// Called every frame
-        /// </summary>
-        /// <param name="deltaTime">The time between each frame</param>
-        public void Update(float deltaTime)
+        private void Update()
         {
-            if (!_scenes[_currentSceneIndex].Started)
-                _scenes[_currentSceneIndex].Start();
 
-            _scenes[_currentSceneIndex].Update(deltaTime);
 
         }
 
-        //Used to display objects and other info on the screen.
-        public void Draw()
+
+        private void End()
+        {
+
+
+        }
+
+        private void Draw()
         {
             Raylib.BeginDrawing();
+            Raylib.BeginMode3D(_camera);
+            Raylib.ClearBackground(Color.DARKBLUE);
 
-            Raylib.ClearBackground(Color.BLACK);
-            Console.Clear();
-            _scenes[_currentSceneIndex].Draw();
+            Raylib.DrawSphere(new System.Numerics.Vector3(), 5, Color.RED);
 
+            Raylib.DrawGrid(10, 1.0f);
+            Raylib.EndMode3D();
             Raylib.EndDrawing();
         }
 
-
-        //Called when the game ends.
-        public void End()
-        {
-            if (_scenes[_currentSceneIndex].Started)
-                _scenes[_currentSceneIndex].End();
-        }
-
-
-        //Handles all of the main game logic including the main game loop.
         public void Run()
         {
-            //Call start for all objects in game
             Start();
 
-
-            //Loops the game until either the game is set to be over or the window closes
-            while (!GameManager.GameOver && !Raylib.WindowShouldClose())
+            while (!_gameOver && !Raylib.WindowShouldClose())
             {
-                //Stores the current time between frames
-                float deltaTime = Raylib.GetFrameTime();
-                //Call update for all objects in game
-                Update(deltaTime);
-                //Call draw for all objects in game
+                Update();
                 Draw();
-                //Clear the input stream for the console window
-                while (Console.KeyAvailable)
-                    Console.ReadKey(true);
             }
 
             End();
         }
     }
+
+
 }
